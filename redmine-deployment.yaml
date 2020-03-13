@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redmine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redmine
+  template:
+    metadata:
+      name: redmine
+      labels:
+        app: redmine
+    spec:
+      containers:
+      - image: redmine:4.1.0
+        name: redmine
+        env:
+        - name: REDMINE_DB_MYSQL
+          value: "172.31.101.192"
+        - name: REDMINE_DB_PORT
+          value: "3306"
+        - name: REDMINE_DB_USERNAME
+          value: "redmine"
+        - name: REDMINE_DB_PASSWORD
+          value: "redmine"
+        volumeMounts:
+          # name must match the volume name below
+          - name: redmine-files
+            mountPath: "/usr/src/redmine/files"
+          - name: redmine-plugins
+            mountPath: "/usr/src/redmine/plugins"
+      volumes:
+      - name: redmine-files
+        nfs:
+          server: 172.31.101.192
+          path: /srv/redmine-files
+      - name: redmine-plugins
+        nfs:
+          server: 172.31.101.192
+          path: /srv/redmine-plugins
